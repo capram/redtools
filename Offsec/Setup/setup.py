@@ -7,9 +7,10 @@ def run_command(command, description):
     result = subprocess.run(command, shell=True)
     if result.returncode == 0:
         print(f"[+] {description} - Completed successfully")
+        return True
     else:
         print(f"[!] {description} - Failed")
-        exit(1)
+        return False
 
 def download_vpn_config(vpn_url, config_path):
     """Download the VPN configuration file."""
@@ -35,7 +36,9 @@ def prompt_installation(task, command, sudo_prefix):
     """Prompt user for Yes/No confirmation before running an installation."""
     choice = input(f"Do you want to {task}? (yes/no): ").strip().lower()
     if choice == 'yes':
-        run_command(f"{sudo_prefix} {command}", task)
+        success = run_command(f"{sudo_prefix} {command}", task)
+        if not success:
+            print(f"[*] Moving to the next task after failure in: {task}")
     else:
         print(f"[*] Skipping {task}.")
 
