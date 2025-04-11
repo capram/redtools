@@ -36,9 +36,14 @@ def main():
     sudo_password = input("Enter your sudo password: ")
     sudo_prefix = f"echo {sudo_password} | sudo -S"
 
-    # Update and upgrade the system
-    run_command(f"{sudo_prefix} apt update", "Updating package list")
-    run_command(f"{sudo_prefix} apt upgrade -y", "Upgrading installed packages")
+    # Ask user for confirmation before updating and upgrading
+    update_upgrade_choice = input("Do you want to update and upgrade the system? (yes/no): ").strip().lower()
+    if update_upgrade_choice == 'yes':
+        # Update and upgrade the system
+        run_command(f"{sudo_prefix} apt update", "Updating package list")
+        run_command(f"{sudo_prefix} apt upgrade -y", "Upgrading installed packages")
+    else:
+        print("[*] Skipping system update and upgrade.")
 
     # Install Terminator
     run_command(f"{sudo_prefix} apt install -y terminator", "Installing Terminator")
