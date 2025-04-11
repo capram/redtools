@@ -28,8 +28,16 @@ def start_vpn(config_path):
     if result.returncode == 0:
         print("[+] VPN connection started successfully")
     else:
-        print("[!] Failed to start VPN connection")
+        print(f"[!] Failed to start VPN connection")
         exit(1)
+
+def prompt_installation(task, command, sudo_prefix):
+    """Prompt user for Yes/No confirmation before running an installation."""
+    choice = input(f"Do you want to {task}? (yes/no): ").strip().lower()
+    if choice == 'yes':
+        run_command(f"{sudo_prefix} {command}", task)
+    else:
+        print(f"[*] Skipping {task}.")
 
 def main():
     print("[*] This script requires sudo privileges.")
@@ -45,18 +53,12 @@ def main():
     else:
         print("[*] Skipping system update and upgrade.")
 
-    # Install Terminator
-    run_command(f"{sudo_prefix} apt install -y terminator", "Installing Terminator")
-
-    # Install Sublime Text Editor
-    run_command(f"{sudo_prefix} apt install -y sublime-text", "Installing Sublime Text Editor")
-
-    # Install AutoRecon and its dependencies
-    run_command(f"{sudo_prefix} apt install -y python3-pip python3-venv seclists curl", "Installing dependencies for AutoRecon")
-    run_command(f"{sudo_prefix} pip3 install git+https://github.com/Tib3rius/AutoRecon.git", "Installing AutoRecon by Tiberius")
-
-    # Install bpytop and its dependencies
-    run_command(f"{sudo_prefix} apt install -y bpytop", "Installing bpytop and its dependencies")
+    # Prompt for each tool installation
+    prompt_installation("install Terminator", "apt install -y terminator", sudo_prefix)
+    prompt_installation("install Sublime Text Editor", "apt install -y sublime-text", sudo_prefix)
+    prompt_installation("install dependencies for AutoRecon", "apt install -y python3-pip python3-venv seclists curl", sudo_prefix)
+    prompt_installation("install AutoRecon by Tiberius", "pip3 install git+https://github.com/Tib3rius/AutoRecon.git", sudo_prefix)
+    prompt_installation("install bpytop and its dependencies", "apt install -y bpytop", sudo_prefix)
 
     # Download VPN configuration
     vpn_url = "https://vpn.offsec.com/config.ovpn"  # Replace with the actual URL from Offsec
