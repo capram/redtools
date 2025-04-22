@@ -12,6 +12,32 @@ def run_command(command, description):
         print(f"[!] {description} - Failed")
         return False
 
+def modify_text_editor_config():
+    """Modify the text editor configuration in ~/.zshrc file."""
+    choice = input("Do you want to modify the text editor configuration? (yes/no): ").strip().lower()
+    if choice == "yes":
+        print("[*] Modifying ~/.zshrc...")
+        try:
+            with open(os.path.expanduser("~/.zshrc"), "r") as file:
+                lines = file.readlines()
+
+            # Modify specific lines
+            if len(lines) > 119:  # Ensure the file has enough lines
+                lines[118] = lines[118].replace("twoline", "oneline")  # Line 119 in 0-based index
+                lines[119] = lines[119].replace("yes", "no")  # Line 120 in 0-based index
+
+                # Write changes back to the file
+                with open(os.path.expanduser("~/.zshrc"), "w") as file:
+                    file.writelines(lines)
+
+                print("[+] ~/.zshrc modified successfully. Changes saved.")
+            else:
+                print("[!] ~/.zshrc does not have enough lines to modify. Skipping.")
+        except Exception as e:
+            print(f"[!] An error occurred while modifying ~/.zshrc: {e}")
+    else:
+        print("[*] Skipping text editor modification.")
+
 def download_vpn_config(vpn_url, config_path):
     """Download the VPN configuration file."""
     print(f"[*] Downloading VPN configuration from {vpn_url}...")
@@ -67,6 +93,9 @@ def main():
         prompt_installation("install Sublime Text Editor", "apt update && apt install -y sublime-text", sudo_prefix)
     else:
         print("[*] Skipping Sublime Text setup.")
+
+    # Modify text editor configuration
+    modify_text_editor_config()
 
     prompt_installation("install dependencies for AutoRecon", "apt install -y python3-pip python3-venv seclists curl", sudo_prefix)
     prompt_installation("install AutoRecon by Tiberius", "pip3 install git+https://github.com/Tib3rius/AutoRecon.git", sudo_prefix)
