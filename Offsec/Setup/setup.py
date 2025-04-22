@@ -23,17 +23,27 @@ def get_user_confirmation(prompt_message):
         else:
             print("[!] Invalid input. Please enter 'yes', 'no', 'y', or 'n'.")
 
-def add_timestamp_to_prompt():
-    """Ask the user if they want to add a timestamp to the command prompt and update ~/.bashrc."""
-    if get_user_confirmation("Would you like to add a timestamp to your command prompt?"):
-        print("[*] Adding timestamp to the command prompt...")
+def add_timestamp_to_prompt_replace():
+    """Ask the user if they want to add a timestamp to the command prompt and replace PS1 in ~/.bashrc."""
+    if get_user_confirmation("Would you like to add a timestamp to your command prompt, replacing the current PS1 variable?"):
+        print("[*] Replacing PS1 variable to include timestamp in ~/.bashrc...")
         try:
             bashrc_path = os.path.expanduser("~/.bashrc")
-            with open(bashrc_path, "a") as file:
-                # Add a timestamp to the PS1 variable
-                file.write('\n# Add timestamp to the command prompt\n')
-                file.write('export PS1="\\[\\e[32m\\]\\D{%Y-%m-%d %H:%M:%S} \\[\\e[0m\\]\\u@\\h:\\w\\$ "\n')
-            print("[+] Timestamp added to the command prompt. Please restart your terminal or run 'source ~/.bashrc' to apply changes.")
+            with open(bashrc_path, "r") as file:
+                lines = file.readlines()
+
+            # Remove any existing PS1 definition
+            lines = [line for line in lines if not line.strip().startswith("PS1=")]
+
+            # Add the new PS1 definition with timestamp
+            lines.append('# Set PS1 to include timestamp\n')
+            lines.append('export PS1="\\[\\e[32m\\]\\D{%Y-%m-%d %H:%M:%S} \\[\\e[0m\\]\\u@\\h:\\w\\$ "\n')
+
+            # Write the updated lines back to the file
+            with open(bashrc_path, "w") as file:
+                file.writelines(lines)
+
+            print("[+] PS1 variable replaced successfully. Please restart your terminal or run 'source ~/.bashrc' to apply changes.")
         except Exception as e:
             print(f"[!] An error occurred while modifying ~/.bashrc: {e}")
     else:
@@ -92,8 +102,8 @@ def main():
     # Modify text editor configuration
     modify_text_editor_config()
 
-    # Add timestamp to the command prompt
-    add_timestamp_to_prompt()
+    # Add timestamp to the command prompt by replacing PS1
+    add_timestamp_to_prompt_replace()
 
     prompt_installation("install dependencies for AutoRecon", "apt install -y python3-pip python3-venv seclists curl", sudo_prefix)
     prompt_installation("install AutoRecon by Tiberius", "pip3 install git+https://github.com/Tib3rius/AutoRecon.git", sudo_prefix)
