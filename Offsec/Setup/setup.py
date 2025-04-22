@@ -23,6 +23,22 @@ def get_user_confirmation(prompt_message):
         else:
             print("[!] Invalid input. Please enter 'yes', 'no', 'y', or 'n'.")
 
+def add_timestamp_to_prompt():
+    """Ask the user if they want to add a timestamp to the command prompt and update ~/.bashrc."""
+    if get_user_confirmation("Would you like to add a timestamp to your command prompt?"):
+        print("[*] Adding timestamp to the command prompt...")
+        try:
+            bashrc_path = os.path.expanduser("~/.bashrc")
+            with open(bashrc_path, "a") as file:
+                # Add a timestamp to the PS1 variable
+                file.write('\n# Add timestamp to the command prompt\n')
+                file.write('export PS1="\\[\\e[32m\\]\\D{%Y-%m-%d %H:%M:%S} \\[\\e[0m\\]\\u@\\h:\\w\\$ "\n')
+            print("[+] Timestamp added to the command prompt. Please restart your terminal or run 'source ~/.bashrc' to apply changes.")
+        except Exception as e:
+            print(f"[!] An error occurred while modifying ~/.bashrc: {e}")
+    else:
+        print("[*] Skipping adding a timestamp to the command prompt.")
+
 def modify_text_editor_config():
     """Modify the text editor configuration in ~/.zshrc file."""
     if get_user_confirmation("Do you want to modify the text editor configuration?"):
@@ -75,6 +91,9 @@ def main():
 
     # Modify text editor configuration
     modify_text_editor_config()
+
+    # Add timestamp to the command prompt
+    add_timestamp_to_prompt()
 
     prompt_installation("install dependencies for AutoRecon", "apt install -y python3-pip python3-venv seclists curl", sudo_prefix)
     prompt_installation("install AutoRecon by Tiberius", "pip3 install git+https://github.com/Tib3rius/AutoRecon.git", sudo_prefix)
