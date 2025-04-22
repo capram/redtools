@@ -58,7 +58,16 @@ def main():
 
     # Prompt for each tool installation
     prompt_installation("install Terminator", "apt install -y terminator", sudo_prefix)
-    prompt_installation("install Sublime Text Editor", "apt install -y sublime-text", sudo_prefix)
+
+    # Add GPG key and repository for Sublime Text before installation
+    sublime_setup_choice = input("Do you want to add the GPG key and repository for Sublime Text? (yes/no): ").strip().lower()
+    if sublime_setup_choice == 'yes':
+        run_command("wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/sublimehq-archive.gpg > /dev/null", "Adding GPG key for Sublime Text")
+        run_command('echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list', "Adding Sublime Text repository")
+        prompt_installation("install Sublime Text Editor", "apt update && apt install -y sublime-text", sudo_prefix)
+    else:
+        print("[*] Skipping Sublime Text setup.")
+
     prompt_installation("install dependencies for AutoRecon", "apt install -y python3-pip python3-venv seclists curl", sudo_prefix)
     prompt_installation("install AutoRecon by Tiberius", "pip3 install git+https://github.com/Tib3rius/AutoRecon.git", sudo_prefix)
     prompt_installation("install bpytop and its dependencies", "apt install -y bpytop", sudo_prefix)
